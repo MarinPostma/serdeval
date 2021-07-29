@@ -1,6 +1,8 @@
 # SerdeVal
 A serde validator
 
+[crates.io](https://crates.io/crates/serdeval)
+
 ## Overview
 
 SerdeVal allows you to validate data that can be deserialized using serde, whithout actually deserializing to anything. This is usefull when you only want to validate that some data can be deserialized to some type. SerdeVal doesn't allocate anything, so it is extremely efficient for validating large files from disk:
