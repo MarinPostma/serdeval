@@ -1,4 +1,4 @@
-use serde_dummy::*;
+use serdeval::*;
 use std::fs::File;
 use std::env::args;
 use std::io::BufReader;

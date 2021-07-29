@@ -2,6 +2,12 @@
 name = "serdeval"
 version = "0.1.0"
 edition = "2018"
+license-file = "LICENSE"
+repository = "https://github.com/MarinPostma/serdeval"
+categories = ["validation", "deserialization"]
+keywords = ["serde", "json", "serde_json", "validation"]
+description = "Serde dummy types for fast and memory efficient typed validation."
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
