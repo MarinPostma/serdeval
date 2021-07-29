@@ -1,5 +1,5 @@
 [package]
-name = "serde-dummy"
+name = "serdeval"
 version = "0.1.0"
 edition = "2018"
 
