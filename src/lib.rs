@@ -3,7 +3,7 @@ use serde::de::Visitor;
 use std::marker::PhantomData;
 
 struct SeqVisitor<T>(PhantomData<T>);
-struct Seq<T>(PhantomData<T>);
+pub struct Seq<T>(PhantomData<T>);
 
 impl<'de, T: Deserialize<'de>> Deserialize<'de> for Seq<T> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -37,7 +37,7 @@ impl<'de, T: Deserialize<'de>> Visitor<'de> for SeqVisitor<T> {
 }
 
 struct MapVisitor<K, V>(PhantomData<(K, V)>);
-struct Map<K, V>(PhantomData<(K, V)>);
+pub struct Map<K, V>(PhantomData<(K, V)>);
 
 impl<'de, K, V> Deserialize<'de> for Map<K, V>
 where
@@ -79,7 +79,7 @@ where
 }
 
 struct StrVisitor;
-struct Str;
+pub struct Str;
 
 impl<'de> Deserialize<'de> for Str {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -112,7 +112,7 @@ impl<'de> Visitor<'de> for StrVisitor {
     }
 }
 
-struct Any;
+pub struct Any;
 struct AnyVisitor;
 
 impl<'de> Deserialize<'de> for Any {
@@ -299,17 +299,31 @@ impl<'de> Visitor<'de> for AnyVisitor {
         Ok(Any)
     }
 
-    fn visit_seq<A>(self, _seq: A) -> Result<Self::Value, A::Error>
+    fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
     where
         A: serde::de::SeqAccess<'de>,
     {
+        loop {
+            match seq.next_element::<Any>() {
+                Ok(None) => break,
+                Err(e) => return Err(e),
+                _ => (),
+            }
+        }
         Ok(Any)
     }
 
-    fn visit_map<A>(self, _map: A) -> Result<Self::Value, A::Error>
+    fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
     where
         A: serde::de::MapAccess<'de>,
     {
+        loop {
+            match map.next_entry::<Any, Any>() {
+                Ok(None) => break,
+                Err(e) => return Err(e),
+                _ => (),
+            }
+        }
         Ok(Any)
     }
 
@@ -365,7 +379,7 @@ mod test {
         let json = json!({"hello": 1, "blabla": "hello"});
         let json = json.to_string();
 
-        let _: Map<Str, Any> = serde_json::from_str(&json).unwrap();
+        let _: Any = serde_json::from_str(&json).unwrap();
 
         // invalid json
         let json = r##"{"hello": {1: "blabla"}}"##;
