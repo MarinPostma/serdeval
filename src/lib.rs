@@ -2,8 +2,10 @@ use serde::de::Deserialize;
 use serde::de::Visitor;
 use std::marker::PhantomData;
 
-struct SeqVisitor<T>(PhantomData<T>);
+/// Represent a seq type, like a `Vec<T>`, or `HashSet<T>`
 pub struct Seq<T>(PhantomData<T>);
+
+struct SeqVisitor<T>(PhantomData<T>);
 
 impl<'de, T: Deserialize<'de>> Deserialize<'de> for Seq<T> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -36,8 +38,10 @@ impl<'de, T: Deserialize<'de>> Visitor<'de> for SeqVisitor<T> {
     }
 }
 
-struct MapVisitor<K, V>(PhantomData<(K, V)>);
+/// Represent a map type, like a `HashMap<K, V>`, `BTreeMap<K, V>`
 pub struct Map<K, V>(PhantomData<(K, V)>);
+
+struct MapVisitor<K, V>(PhantomData<(K, V)>);
 
 impl<'de, K, V> Deserialize<'de> for Map<K, V>
 where
@@ -78,8 +82,10 @@ where
     }
 }
 
-struct StrVisitor;
+/// Represent a string like type.
 pub struct Str;
+
+struct StrVisitor;
 
 impl<'de> Deserialize<'de> for Str {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -112,7 +118,17 @@ impl<'de> Visitor<'de> for StrVisitor {
     }
 }
 
+/// Represents any type that can be deserialized.
+///
+/// This type is usefull to representing json objects for example:
+///
+/// ```
+/// let json = r##"{"hello": 1, "foo": "bar"}"##;
+///
+/// let _: Map<Str, Any> = serde_json::from_str(&json).unwrap();
+/// ```
 pub struct Any;
+
 struct AnyVisitor;
 
 impl<'de> Deserialize<'de> for Any {
